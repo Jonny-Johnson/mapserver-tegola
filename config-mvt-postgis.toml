@@ -1,0 +1,194 @@
+[webserver]
+port = ":8080"
+
+[webserver.headers]
+Cache-Control = "s-maxage=3600"
+
+[cache]
+type = "redis"
+address = "${REDIS_HOST}"
+password = "${REDIS_PASSWORD}"
+ttl = 10
+max_zoom = 18
+ssl = "${TEGOLA_REDIS_SSL}"
+db = 1
+
+[[providers]]
+name = "bonn"
+type = "mvt_postgis"
+uri = "postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=${TEGOLA_POSTGIS_SSL}" # PostGIS connection string (required)
+#srid = 4326
+srid = 3857
+
+  #water
+  #raw
+  [[providers.layers]]
+  name = "oceans"
+  geometry_type = "polygon"
+  geometry_fieldname = "geom"
+  id_fieldname = "ogc_fid"
+  sql = "SELECT ST_AsMVTGeom(geometry, !BBOX!) AS geom, ogc_fid FROM osm_ocean_polygon WHERE geometry && !BBOX!"
+
+  [[providers.layers]]
+  name = "waterway"
+  geometry_type = "linestring"
+  geometry_fieldname = "geom"
+  #id_fieldname = "ogc_fid"
+  sql = "SELECT ST_AsMVTGeom(geometry, !BBOX!) AS geom, class, brunnel, name FROM layer_waterway(!BBOX!, !ZOOM!)"
+
+  [[providers.layers]]
+  name = "water"
+  geometry_type = "polygon"
+  geometry_fieldname = "geom"
+  #id_fieldname = "osm_id"
+  sql = "SELECT ST_AsMVTGeom(geometry, !BBOX!) AS geom, class, brunnel FROM layer_water(!BBOX!, !ZOOM!)"
+
+  [[providers.layers]]
+  name = "water_name"
+  geometry_type = "point"
+  geometry_fieldname = "geom"
+  id_fieldname = "osm_id"
+  sql = "SELECT ST_AsMVTGeom(geometry, !BBOX!) AS geom, osm_id, class, name, name_en FROM layer_water_name(!BBOX!, !ZOOM!)"
+
+
+
+  #antarctic ice
+  #raw
+  [[providers.layers]]
+  name = "antarctic_ice"
+  geometry_type = "polygon"
+  geometry_fieldname = "geom"
+  id_fieldname = "ogc_fid"
+  sql = "SELECT ST_AsMVTGeom(geometry, !BBOX!) AS geom, ogc_fid FROM ne_50m_antarctic_ice_shelves_polys WHERE geometry && !BBOX!"
+
+  #land
+  [[providers.layers]]
+  name = "landuse"
+  geometry_type = "polygon"
+  geometry_fieldname = "geom"
+  id_fieldname = "osm_id"
+  sql = "SELECT ST_AsMVTGeom(geometry, !BBOX!) AS geom, osm_id, class FROM layer_landuse(!BBOX!, !ZOOM!)"
+
+  [[providers.layers]]
+  name = "landcover"
+  geometry_type = "polygon"
+  geometry_fieldname = "geom"
+  #id_fieldname = "osm_id"
+  sql = "SELECT ST_AsMVTGeom(geometry, !BBOX!) AS geom, class FROM layer_landcover(!BBOX!, !ZOOM!)"
+
+  #countries
+  #raw
+  [[providers.layers]]
+  name = "admin_0_countries_10m"
+  geometry_type = "polygon"
+  geometry_fieldname = "geom"
+  id_fieldname = "ogc_fid"
+  sql = "SELECT ST_AsMVTGeom(geometry, !BBOX!) AS geom, ogc_fid FROM ne_10m_admin_0_countries WHERE geometry && !BBOX!"
+
+
+  #urban areas are only the areas around cities, not entire countries
+  #raw
+  [[providers.layers]]
+  name = "urban_areas_50m"
+  geometry_type = "polygon"
+  geometry_fieldname = "geom"
+  id_fieldname = "ogc_fid"
+  sql = "SELECT ST_AsMVTGeom(geometry, !BBOX!) AS geom, ogc_fid FROM ne_50m_urban_areas WHERE geometry && !BBOX!"
+
+
+  #borders
+  #raw
+  [[providers.layers]]
+  name = "admin_0_boundaries_110m"
+  geometry_type = "linestring"
+  geometry_fieldname = "geom"
+  id_fieldname = "ogc_fid"
+  sql = "SELECT ST_AsMVTGeom(geometry, !BBOX!) AS geom, ogc_fid FROM ne_110m_admin_0_boundary_lines_land WHERE geometry && !BBOX!"
+
+  [[providers.layers]]
+  name = "boundary"
+  geometry_type = "linestring"
+  geometry_fieldname = "geom"
+  #id_fieldname = "ogc_fid"
+  sql = "SELECT ST_AsMVTGeom(geometry, !BBOX!) AS geom, class, admin_level, claimed_by FROM layer_boundary(!BBOX!, !ZOOM!)"
+
+  [[providers.layers]]
+  name = "place"
+  geometry_type = "point"
+  geometry_fieldname = "geom"
+  id_fieldname = "osm_id"
+  sql = "SELECT ST_AsMVTGeom(geometry, !BBOX!) AS geom, osm_id, class, rank, name, name_en FROM layer_place(!BBOX!, !ZOOM!, 1)"
+
+
+
+
+[[maps]]
+name = "world"
+center = [7.0982, 50.7374, 11.0] # set the center of the map so the user is auto navigated to Bonn
+
+  [[maps.layers]]
+  provider_layer = "bonn.oceans"
+  min_zoom = 1
+  max_zoom = 20
+
+  [[maps.layers]]
+  provider_layer = "bonn.antarctic_ice"
+  min_zoom = 1
+  max_zoom = 20
+
+  [[maps.layers]]
+  provider_layer = "bonn.admin_0_countries_10m"
+  min_zoom = 1
+  max_zoom = 20
+
+  [[maps.layers]]
+  provider_layer = "bonn.urban_areas_50m"
+  min_zoom = 1
+  max_zoom = 20
+
+  [[maps.layers]]
+  provider_layer = "bonn.admin_0_boundaries_110m"
+  min_zoom = 1
+  max_zoom = 20
+
+
+[[maps]]
+name = "liberty"
+center = [7.0982, 50.7374, 11.0] # set the center of the map so the user is auto navigated to Bonn
+
+#  [[maps.layers]]
+#  provider_layer = "bonn.landuse"
+#  min_zoom = 1
+#  max_zoom = 20
+
+
+  [[maps.layers]]
+  provider_layer = "bonn.landcover"
+  min_zoom = 1
+  max_zoom = 20
+
+  [[maps.layers]]
+  provider_layer = "bonn.waterway"
+  min_zoom = 1
+  max_zoom = 20
+
+  [[maps.layers]]
+  provider_layer = "bonn.water"
+  min_zoom = 1
+  max_zoom = 20
+
+  [[maps.layers]]
+  provider_layer = "bonn.water_name"
+  min_zoom = 1
+  max_zoom = 20
+
+
+  [[maps.layers]]
+  provider_layer = "bonn.boundary"
+  min_zoom = 1
+  max_zoom = 20
+
+  [[maps.layers]]
+  provider_layer = "bonn.place"
+  min_zoom = 1
+  max_zoom = 20
