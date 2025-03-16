@@ -453,7 +453,7 @@
         "text-max-width": 5,
         "text-size": 12,
         "symbol-placement": "line",
-        "visibility": "visible"
+        "visibility": "none"
       },
       "paint": {
         "text-color": "#5d60be",
@@ -478,7 +478,7 @@
         ],
         "text-max-width": 5,
         "text-size": 12,
-        "visibility": "visible"
+        "visibility": "none"
       },
       "paint": {
         "text-color": "#5d60be",
