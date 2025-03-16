@@ -523,7 +523,7 @@
           ]
         },
         "text-transform": "none",
-        "visibility": "visible"
+        "visibility": "none"
       },
       "paint": {
         "text-color": "#334",
@@ -569,7 +569,7 @@
           ]
         },
         "text-transform": "none",
-        "visibility": "visible"
+        "visibility": "none"
       },
       "paint": {
         "text-color": "#334",
@@ -615,7 +615,7 @@
           ]
         },
         "text-transform": "none",
-        "visibility": "visible"
+        "visibility": "none"
       },
       "paint": {
         "text-color": "#334",
